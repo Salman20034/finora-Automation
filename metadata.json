@@ -1,0 +1,6 @@
+{
+  "name": "FINORA AUTOMATION",
+  "description": "Smart Financial Communication & Salesperson-Wise WhatsApp Image Automation System",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
