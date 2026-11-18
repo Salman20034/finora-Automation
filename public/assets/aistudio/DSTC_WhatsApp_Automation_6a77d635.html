@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DSTC Salesman WhatsApp Automation</title>
+<style>
+:root{--navy:#0b2447;--navy2:#19376d;--gold:#c9a227;--bg:#f2f4f8;--card:#fff;--line:#dfe4ec;--txt:#1d2733;--mut:#6b7686;--ok:#1b8a4b;--warn:#b7791f;--err:#c0392b;--wa:#25d366}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--txt);font-size:14px}
+header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:14px 28px;display:flex;align-items:center;gap:16px;border-bottom:4px solid var(--gold)}
+.logo{width:46px;height:46px;border-radius:10px;background:var(--gold);color:var(--navy);font-weight:800;display:grid;place-items:center;font-size:16px}
+header h1{font-size:18px;margin:0}header small{opacity:.8}
+#libstat{margin-left:auto;font-size:12px;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,.15)}
+.stepper{display:flex;gap:6px;padding:12px 28px;background:#fff;border-bottom:1px solid var(--line);overflow:auto}
+.stepper button{flex:1;min-width:150px;border:1px solid var(--line);background:#f7f8fb;border-radius:8px;padding:8px 10px;cursor:pointer;text-align:left;color:var(--mut);font:inherit}
+.stepper button b{display:block;color:var(--txt)}
+.stepper button.active{background:var(--navy);color:#fff;border-color:var(--navy)}.stepper button.active b{color:#fff}
+.stepper button.done{border-color:var(--ok)}.stepper button:disabled{opacity:.5;cursor:not-allowed}
+main{padding:22px 28px;max-width:1600px;margin:auto}
+section.step{display:none}section.step.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card h2{margin:0 0 4px;font-size:16px;color:var(--navy)}.card p.hint{margin:0 0 12px;color:var(--mut)}
+.row{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end}
+label{display:block;font-size:12px;font-weight:600;color:var(--mut);margin-bottom:3px}
+input[type=text],input[type=number],input[type=date],select{padding:7px 9px;border:1px solid #c5cdd9;border-radius:6px;font:inherit;background:#fff;min-width:170px}
+input[type=file]{padding:6px}
+button.btn{border:0;border-radius:7px;padding:8px 16px;font:inherit;font-weight:600;cursor:pointer;background:var(--navy);color:#fff}
+button.btn:hover{background:var(--navy2)}button.btn:disabled{background:#aab3c2;cursor:not-allowed}
+button.btn.gold{background:var(--gold);color:var(--navy)}button.btn.ghost{background:#fff;color:var(--navy);border:1px solid var(--navy)}
+button.btn.wa{background:var(--wa);color:#073b1c}button.btn.sm{padding:4px 10px;font-size:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.chip{background:#eaf0fb;color:var(--navy);padding:3px 9px;border-radius:14px;font-size:12px}
+.tbl-wrap{overflow:auto;max-height:520px;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;background:#fff}
+th,td{padding:6px 10px;border-bottom:1px solid #edf0f5;text-align:left;white-space:nowrap}
+th{background:var(--navy);color:#fff;position:sticky;top:0;font-size:12px;z-index:1}
+th.sortable{cursor:pointer}td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tbody tr:hover{background:#f5f8ff}tfoot td{font-weight:700;background:#fff7dc;border-top:2px solid var(--gold);position:sticky;bottom:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:9px;padding:12px 14px}
+.kpi span{font-size:12px;color:var(--mut)}.kpi b{display:block;font-size:20px;color:var(--navy);margin-top:2px}
+.msg{padding:8px 12px;border-radius:7px;margin:8px 0;font-size:13px}
+.msg.ok{background:#e7f6ed;color:var(--ok)}.msg.warn{background:#fff6e0;color:var(--warn)}.msg.err{background:#fdeaea;color:var(--err)}.msg.info{background:#eaf0fb;color:var(--navy)}
+.pill{padding:2px 9px;border-radius:12px;font-size:11px;font-weight:700}
+.pill.pending{background:#eef1f6;color:var(--mut)}.pill.opened{background:#fff1c9;color:var(--warn)}.pill.completed{background:#d9f3e3;color:var(--ok)}.pill.bad{background:#fdeaea;color:var(--err)}
+.checks .c{display:flex;gap:10px;padding:7px 4px;border-bottom:1px solid #edf0f5;align-items:center}
+.c .ic{width:20px;text-align:center;font-weight:800}.c.ok .ic{color:var(--ok)}.c.warn .ic{color:var(--warn)}.c.err .ic{color:var(--err)}.c .v{margin-left:auto;font-weight:700}
+details{margin:6px 0}details summary{cursor:pointer;font-weight:600;color:var(--navy)}
+.overlay{position:fixed;inset:0;background:rgba(10,20,40,.55);display:none;z-index:50;overflow:auto;padding:30px 20px}
+.overlay.on{display:block}.panel{background:#fff;border-radius:12px;max-width:1400px;margin:auto;padding:20px}
+.panel.narrow{max-width:760px}
+pre.wa{background:#e7fbd9;border:1px solid #b9e7a3;border-radius:8px;padding:12px;white-space:pre-wrap;font-family:inherit;max-height:360px;overflow:auto}
+.seq{background:linear-gradient(135deg,#0b2447,#19376d);color:#fff;border-radius:10px;padding:14px 18px;margin-bottom:16px;display:none}
+.seq.on{display:block}.seq .bar{height:8px;background:rgba(255,255,255,.2);border-radius:4px;margin:8px 0;overflow:hidden}.seq .bar i{display:block;height:100%;background:var(--wa)}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--navy);color:#fff;padding:10px 16px;border-radius:8px;display:none;z-index:99;max-width:420px}
+.colt td,.colt th{padding:5px 8px}.colt input[type=text]{min-width:150px;padding:4px 6px}
+.tag{font-size:10px;background:var(--gold);color:var(--navy);padding:1px 6px;border-radius:8px;margin-left:4px}
+a.link{color:var(--navy);font-weight:600;cursor:pointer;text-decoration:underline}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">DSTC</div>
+  <div><h1>Durrat Al Saoud Trading Company – Salesman WhatsApp Automation</h1><small>Customer Overdue Ageing · Salesman-wise follow-up · All processing is local in your browser</small></div>
+  <div id="libstat">Loading libraries…</div>
+</header>
+<nav class="stepper" id="stepper"></nav>
+<main>
+
+<!-- STEP 1 -->
+<section class="step on" id="step1">
+  <div class="card">
+    <h2>1 · Upload Salesman Contact Excel (File 1)</h2>
+    <p class="hint">Any worksheet, any column names, any order. You will choose which columns hold the salesman name, country code and mobile number.</p>
+    <div class="row">
+      <div><label>Excel file (.xlsx / .xls / .csv)</label><input type="file" id="f1" accept=".xlsx,.xls,.xlsm,.csv"></div>
+      <div><label>Worksheet</label><select id="c_sheet"></select></div>
+      <div><label>Header row number</label><input type="number" id="c_hr" min="1" value="1" style="min-width:90px"></div>
+    </div>
+    <div id="c_msg"></div><div id="c_info"></div>
+  </div>
+  <div class="card" id="c_map" style="display:none">
+    <h2>Map contact columns</h2>
+    <p class="hint">Detected headers are listed below. Selections are suggestions – please verify and change them if needed.</p>
+    <div class="chips" id="c_chips"></div>
+    <div class="row">
+      <div><label>Salesman Name *</label><select id="m_name"></select></div>
+      <div><label>Country Code</label><select id="m_cc"></select></div>
+      <div><label>Mobile Number *</label><select id="m_mob"></select></div>
+    </div>
+    <h2 style="margin-top:16px;font-size:14px">Data preview</h2>
+    <div class="tbl-wrap" id="c_prev"></div>
+    <h2 style="margin-top:16px;font-size:14px">Combined WhatsApp number – sample</h2>
+    <div class="tbl-wrap" id="c_sample" style="max-height:260px"></div>
+    <div id="c_stats"></div>
+    <div style="margin-top:14px"><button class="btn gold" id="c_confirm">Confirm contact mapping →</button></div>
+  </div>
+</section>
+
+<!-- STEP 2 -->
+<section class="step" id="step2">
+  <div class="card">
+    <h2>2 · Upload Customer Overdue Ageing Excel (File 2)</h2>
+    <p class="hint">Any worksheet and any columns. Next you decide which columns to keep, show, send on WhatsApp and export.</p>
+    <div class="row">
+      <div><label>Excel file (.xlsx / .xls / .csv)</label><input type="file" id="f2" accept=".xlsx,.xls,.xlsm,.csv"></div>
+      <div><label>Worksheet</label><select id="u_sheet"></select></div>
+      <div><label>Header row number</label><input type="number" id="u_hr" min="1" value="1" style="min-width:90px"></div>
+    </div>
+    <div id="u_msg"></div><div id="u_info"></div>
+  </div>
+  <div id="u_body" style="display:none">
+    <div class="card">
+      <h2>Data preview (raw)</h2>
+      <div class="tbl-wrap" id="u_prev" style="max-height:260px"></div>
+    </div>
+    <div class="card">
+      <h2>Key columns</h2>
+      <p class="hint">Used for grouping and totals. Suggestions are pre-filled – verify them.</p>
+      <div class="row">
+        <div><label>Salesman Name column *</label><select id="r_sal"></select></div>
+        <div><label>Customer Name column</label><select id="r_cust"></select></div>
+        <div><label>Branch column</label><select id="r_br"></select></div>
+        <div><label>Outstanding Amount column</label><select id="r_out"></select></div>
+        <div><label>Report date (shown in message)</label><input type="date" id="r_date"></div>
+      </div>
+      <div style="margin-top:10px">
+        <label style="display:inline"><input type="checkbox" id="o_fill"> Salesman name appears only on the first row of each group – fill blank cells downward</label><br>
+        <label style="display:inline"><input type="checkbox" id="o_tot" checked> Exclude rows that look like “Total / Grand Total” lines (they will be listed in validation, not silently dropped)</label>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Choose columns</h2>
+      <p class="hint">Tick where each column should appear. Rename labels (source headers stay unchanged) and reorder with ▲ ▼. <b>WhatsApp image</b> = columns drawn in the table picture sent to the salesman, in the order shown here. <b>1,234.56 format</b> = show as an amount (zero shows “-”). <b>Overdue</b> = counts towards “Total Overdue” and is drawn red on a pink background. <b>Σ</b> = show totals for this column.</p>
+      <div style="margin-bottom:8px" class="row">
+        <button class="btn sm ghost" onclick="colAll('show',true)">Show all</button>
+        <button class="btn sm ghost" onclick="colAll('show',false)">Show none</button>
+        <button class="btn sm ghost" onclick="colAll('wa',true)">WhatsApp all shown</button>
+        <button class="btn sm ghost" onclick="colAll('exp',true)">Export all shown</button>
+      </div>
+      <div class="tbl-wrap"><table class="colt" id="colt"></table></div>
+      <div style="margin-top:14px"><button class="btn gold" id="u_next">Continue to preview →</button></div>
+      <div id="u_err"></div>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 3 -->
+<section class="step" id="step3">
+  <div class="card">
+    <h2>3 · Preview &amp; Confirm</h2>
+    <p class="hint">Check the table layout and a sample WhatsApp message built from your selections.</p>
+    <div id="p_info"></div>
+    <h2 style="font-size:14px;margin-top:12px">Customer table preview (first 15 records)</h2>
+    <div class="tbl-wrap" id="p_tbl" style="max-height:380px"></div>
+    <h2 style="font-size:14px;margin-top:16px">Sample table image (first salesman – this is what is pasted into WhatsApp)</h2><div class="tbl-wrap" id="p_img" style="max-height:420px;padding:6px"></div><h2 style="font-size:14px;margin-top:16px">Sample text message (only used in “Text message” mode)</h2>
+    <pre class="wa" id="p_msg"></pre>
+    <div style="margin-top:12px"><label style="display:inline"><input type="checkbox" id="p_ok"> I confirm both Excel mappings and the column selections are correct.</label></div>
+    <div style="margin-top:12px" class="row">
+      <button class="btn ghost" onclick="showStep(2)">← Back to columns</button>
+      <button class="btn gold" id="p_go" disabled>Validate &amp; match salesmen →</button>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 4 -->
+<section class="step" id="step4">
+  <div class="card">
+    <h2>4 · Validation &amp; Reconciliation</h2>
+    <p class="hint">Nothing has been removed or altered. Review every item before WhatsApp processing is enabled.</p>
+    <div class="kpis" id="v_kpis"></div>
+    <div class="checks" id="v_checks"></div>
+    <div id="v_details"></div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn ghost" onclick="exportValidation()">⬇ Contact validation report</button>
+      <button class="btn ghost" onclick="exportUnmatched()">⬇ Unmatched salesman report</button>
+    </div>
+    <div style="margin-top:12px"><label style="display:inline"><input type="checkbox" id="v_ok"> I have reviewed the validation summary and want to proceed.</label></div>
+    <div style="margin-top:12px" class="row">
+      <button class="btn ghost" onclick="showStep(3)">← Back</button>
+      <button class="btn gold" id="v_go" disabled>Open salesman dashboard →</button>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 5 -->
+<section class="step" id="step5">
+  <div class="kpis" id="d_kpis"></div>
+  <div class="seq" id="seq"></div>
+  <div class="card">
+    <div class="row" style="margin-bottom:12px">
+      <div><label>Search salesman</label><input type="text" id="d_q" placeholder="Type a name…"></div>
+      <div id="d_brwrap" style="display:none"><label>Branch</label><select id="d_br"></select></div>
+      <div><label>Contact</label><select id="d_ct"><option value="">All</option><option value="valid">Valid WhatsApp</option><option value="bad">Missing / invalid</option></select></div>
+      <div><label>Status</label><select id="d_st"><option value="">All</option><option>pending</option><option>opened</option><option>completed</option></select></div>
+      <div><label>Send as</label><select id="d_mode"><option value="img" selected>Image of table (copy → paste)</option><option value="both">Image + short greeting</option><option value="text">Text message</option></select></div><button class="btn gold" id="d_start">▶ Start sequential workflow</button>
+      <button class="btn ghost" onclick="exportAll()">⬇ Complete report (Excel)</button>
+      <button class="btn ghost" onclick="exportValidation()">⬇ Contact validation</button>
+      <button class="btn ghost" onclick="exportUnmatched()">⬇ Unmatched</button>
+    </div>
+    <div class="msg info">WhatsApp opens with the message pre-filled. <b>You review and press Send yourself</b> – this tool never sends messages automatically. Use “Mark completed” after sending.</div>
+    <div class="tbl-wrap" style="max-height:620px"><table id="d_tbl"></table></div>
+    <div class="row" style="margin-top:12px"><button class="btn ghost" onclick="showStep(4)">← Back to validation</button></div>
+  </div>
+</section>
+</main>
+
+<!-- Detail overlay -->
+<div class="overlay" id="detail"><div class="panel" id="detail_in"></div></div>
+<!-- Message overlay -->
+<div class="overlay" id="msgov"><div class="panel narrow" id="msgov_in"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ====== Libraries (loaded from CDN – internet needed once to load; data never leaves the browser) ====== */
+function loadLib(urls,test){return new Promise(res=>{let i=0;(function next(){if(test())return res(true);if(i>=urls.length)return res(false);const s=document.createElement('script');s.src=urls[i++];s.onload=()=>test()?res(true):next();s.onerror=next;document.head.appendChild(s);})();});}
+Promise.all([
+  loadLib(['https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js','https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'],()=>typeof XLSX!=='undefined'),
+  loadLib(['https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js','https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js'],()=>typeof ExcelJS!=='undefined')
+]).then(([a,b])=>{const e=document.getElementById('libstat');e.textContent=(a&&b)?'✔ Excel libraries ready':'⚠ Libraries failed to load – check internet';if(!(a&&b))e.style.background='#c0392b';});
+
+/* ====== Helpers ====== */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clean=v=>v==null?'':(v instanceof Date?'':String(v).replace(/\s+/g,' ').trim());
+const normName=v=>clean(v).toLowerCase();
+const fmt=n=>Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmtDate(d){d=new Date(d.getTime()+600000);return String(d.getDate()).padStart(2,'0')+'-'+MON[d.getMonth()]+'-'+d.getFullYear();}
+function toast(t,ms=3500){const e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',ms);}
+function parseNum(v){
+  if(v===''||v==null)return{empty:true,n:0};
+  if(typeof v==='number')return isFinite(v)?{n:v}:{bad:true,n:0};
+  if(v instanceof Date)return{bad:true,n:0};
+  let s=String(v).trim();if(!s||s==='-')return{empty:true,n:0};
+  let neg=false;if(/^\(.*\)$/.test(s)){neg=true;s=s.slice(1,-1);}
+  s=s.replace(/[,\s]/g,'').replace(/^(SAR|SR|USD|AED|INR|\$|₹)/i,'');
+  if(/^-?\d*\.?\d+$/.test(s)){const n=parseFloat(s);return{n:neg?-n:n};}
+  return{bad:true,n:0};
+}
+function digits(v){if(v===''||v==null)return'';if(typeof v==='number')v=Number.isInteger(v)?v.toFixed(0):String(v);return String(v).replace(/\D/g,'');}
+function buildPhone(cc,mob,hasCC){
+  let c=digits(cc),m=digits(mob);
+  if(!m)return{phone:'',valid:false,reason:'Missing mobile number'};
+  if(hasCC){
+    if(!c)return{phone:'',valid:false,reason:'Missing country code'};
+    if(c.startsWith('00'))c=c.slice(2);
+    m=m.replace(/^0+/,'');
+    const p=c+m;return /^[1-9]\d{7,14}$/.test(p)?{phone:p,valid:true,reason:''}:{phone:p,valid:false,reason:'Invalid length (must be 8–15 digits incl. country code)'};
+  }
+  if(m.startsWith('00'))m=m.slice(2);
+  return /^[1-9]\d{7,14}$/.test(m)?{phone:m,valid:true,reason:''}:{phone:m,valid:false,reason:'Invalid number / missing country code'};
+}
+function saveBlob(buf,name){const b=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);}
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+
+/* ====== Excel reading ====== */
+function readBook(file){return new Promise((res,rej)=>{if(typeof XLSX==='undefined')return rej(new Error('SheetJS library is not loaded (internet needed to load it).'));const r=new FileReader();r.onerror=()=>rej(new Error('Could not read the file.'));r.onload=e=>{try{res(XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:true}));}catch(x){rej(new Error('Not a valid Excel file: '+x.message));}};r.readAsArrayBuffer(file);});}
+function sheetAoa(wb,name){
+  const ws=wb.Sheets[name];if(!ws)return[];
+  let mr=-1,mc=-1;
+  for(const k in ws){if(k.charAt(0)==='!')continue;const a=XLSX.utils.decode_cell(k);if(a.r>mr)mr=a.r;if(a.c>mc)mc=a.c;}
+  if(mr<0)return[];
+  /* always start at A1 so row numbers match Excel exactly, even if the sheet's used range starts lower down */
+  return XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:'',range:{s:{r:0,c:0},e:{r:mr,c:mc}}});
+}
+function sheetInfo(aoa,t,hr){
+  if(!aoa.length)return'<div class="msg err">This worksheet is empty. Choose another worksheet.</div>';
+  if(!t.headers.length||!t.rows.length)return'<div class="msg err">No headers/data found at row '+hr+' (this sheet has '+aoa.length+' rows). Change the header row number or the worksheet.</div>';
+  return'<div class="msg info">Header row '+hr+' · '+t.headers.length+' columns detected · '+t.rows.length+' data rows.</div>';
+}
+function guessHeaderRow(aoa){
+  const lim=Math.min(aoa.length,30),cnt=[];let mx=0;
+  for(let i=0;i<lim;i++){const n=aoa[i].filter(v=>clean(v)!=='').length;cnt.push(n);mx=Math.max(mx,n);}
+  for(let i=0;i<lim;i++)if(cnt[i]>=2&&cnt[i]>=mx*0.6)return i+1;
+  return 1;
+}
+function buildTable(aoa,hr){
+  const hrow=aoa[hr-1]||[];let width=0;
+  for(let i=hr-1;i<Math.min(aoa.length,hr+200);i++)width=Math.max(width,(aoa[i]||[]).length);
+  width=Math.max(width,hrow.length);
+  const headers=[],seen={};
+  for(let j=0;j<width;j++){let h=clean(hrow[j])||('Column '+(j+1));if(seen[h]){seen[h]++;h+=' ('+seen[h]+')';}else seen[h]=1;headers.push(h);}
+  const rows=[];
+  for(let i=hr;i<aoa.length;i++){const r=aoa[i]||[];if(!r.some(v=>clean(v)!==''||v instanceof Date))continue;const a=[];for(let j=0;j<width;j++)a.push(r[j]===undefined?'':r[j]);rows.push({no:i+1,r:a});}
+  return{headers,rows};
+}
+function cellText(v){if(v instanceof Date)return fmtDate(v);if(v==null)return'';return String(v);}
+function previewTable(el,t,n){
+  let h='<table><thead><tr><th>Row</th>'+t.headers.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>';
+  t.rows.slice(0,n).forEach(r=>{h+='<tr><td>'+r.no+'</td>'+r.r.map(v=>'<td>'+esc(cellText(v))+'</td>').join('')+'</tr>';});
+  el.innerHTML=h+'</tbody></table>';
+}
+function optionsHtml(headers,sel,allowNone,noneLabel){
+  let h=allowNone?'<option value="-1">'+(noneLabel||'— none —')+'</option>':'<option value="-1">— select —</option>';
+  headers.forEach((x,i)=>h+='<option value="'+i+'"'+(i===sel?' selected':'')+'>'+esc(x)+'</option>');return h;
+}
+function suggest(headers,re){const i=headers.findIndex(h=>re.test(h));return i;}
+
+/* ====== State ====== */
+const S={step:1,max:1,C:{},U:{},cols:[],map:{},opt:{},groups:[],missing:[],excluded:[],contacts:[],seq:null,detail:null,sort:{k:'name',d:1}};
+
+/* ====== Stepper ====== */
+const STEPS=['Salesman contacts','Customer ageing file','Preview & confirm','Validation','Dashboard & WhatsApp'];
+function renderStepper(){
+  $('stepper').innerHTML=STEPS.map((t,i)=>`<button class="${S.step===i+1?'active':''} ${S.max>i+1?'done':''}" ${i+1>S.max?'disabled':''} onclick="showStep(${i+1})"><b>${i+1}. ${t}</b></button>`).join('');
+}
+function showStep(n){
+  if(n===3)preparePreview();
+  if(n===4)renderValidation();
+  if(n===5)renderDashboard();
+  S.step=n;S.max=Math.max(S.max,n);
+  document.querySelectorAll('section.step').forEach((s,i)=>s.classList.toggle('on',i+1===n));
+  renderStepper();window.scrollTo(0,0);
+}
+renderStepper();
+
+/* ====== STEP 1 : contacts ====== */
+$('f1').addEventListener('change',async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{
+    S.C.wb=await readBook(f);S.C.file=f.name;S.C.confirmed=false;
+    $('c_sheet').innerHTML=S.C.wb.SheetNames.map(n=>'<option>'+esc(n)+'</option>').join('');
+    loadContactSheet(true);
+    $('c_msg').innerHTML='<div class="msg ok">Loaded “'+esc(f.name)+'” – '+S.C.wb.SheetNames.length+' worksheet(s). Choose the worksheet that holds the salesman contacts.</div>';
+  }catch(x){$('c_msg').innerHTML='<div class="msg err">'+esc(x.message)+'</div>';}
+});
+$('c_sheet').addEventListener('change',()=>loadContactSheet(true));
+$('c_hr').addEventListener('change',()=>loadContactSheet(false));
+function loadContactSheet(guess){
+  S.C.aoa=sheetAoa(S.C.wb,$('c_sheet').value);
+  if(guess)$('c_hr').value=guessHeaderRow(S.C.aoa);
+  const hr=Math.max(1,parseInt($('c_hr').value)||1);
+  S.C.t=buildTable(S.C.aoa,hr);const h=S.C.t.headers;$('c_info').innerHTML=sheetInfo(S.C.aoa,S.C.t,hr);
+  $('c_map').style.display='block';
+  $('c_chips').innerHTML=h.map(x=>'<span class="chip">'+esc(x)+'</span>').join('');
+  $('m_name').innerHTML=optionsHtml(h,suggest(h,/sales|rep\b|executive|employee|name/i));
+  $('m_cc').innerHTML=optionsHtml(h,suggest(h,/country|isd|dial|^code|cc\b/i),true,'— none (number already has country code) —');
+  $('m_mob').innerHTML=optionsHtml(h,suggest(h,/mobile|whats|phone|cell|contact|tel|number/i));
+  previewTable($('c_prev'),S.C.t,10);
+  contactChanged();
+}
+['m_name','m_cc','m_mob'].forEach(id=>$(id).addEventListener('change',contactChanged));
+function computeContacts(){
+  const t=S.C.t,n=+$('m_name').value,c=+$('m_cc').value,m=+$('m_mob').value,hasCC=c>=0;
+  const out=[];let blank=0;
+  t.rows.forEach(r=>{
+    const name=clean(r.r[n]);if(!name){blank++;return;}
+    const p=m>=0?buildPhone(hasCC?r.r[c]:'',r.r[m],hasCC):{phone:'',valid:false,reason:'Mobile column not mapped'};
+    out.push({name,key:normName(name),cc:hasCC?clean(r.r[c]):'',mob:m>=0?clean(r.r[m]):'',phone:p.phone,valid:p.valid,reason:p.reason,row:r.no});
+  });
+  return{list:out,blank,hasCC};
+}
+function contactChanged(){
+  S.C.confirmed=false;$('c_confirm').disabled=false;
+  const n=+$('m_name').value,m=+$('m_mob').value;
+  if(n<0||m<0){$('c_sample').innerHTML='<div class="msg warn" style="margin:8px">Select Salesman Name and Mobile Number columns.</div>';$('c_stats').innerHTML='';return;}
+  const res=computeContacts();
+  let h='<table><thead><tr><th>Row</th><th>Salesman</th><th>Country code (source)</th><th>Mobile (source)</th><th>WhatsApp number</th><th>Result</th></tr></thead><tbody>';
+  res.list.slice(0,8).forEach(x=>h+=`<tr><td>${x.row}</td><td>${esc(x.name)}</td><td>${esc(x.cc)}</td><td>${esc(x.mob)}</td><td>${x.phone?'+'+x.phone:''}</td><td>${x.valid?'<span class="pill completed">valid</span>':'<span class="pill bad">'+esc(x.reason)+'</span>'}</td></tr>`);
+  $('c_sample').innerHTML=h+'</tbody></table>';
+  const v=res.list.filter(x=>x.valid).length;
+  $('c_stats').innerHTML=`<div class="msg info">${res.list.length} contact rows · ${v} valid · ${res.list.length-v} missing/invalid${res.blank?' · '+res.blank+' rows without a salesman name ignored':''}</div>`;
+}
+$('c_confirm').addEventListener('click',()=>{
+  if(+$('m_name').value<0||+$('m_mob').value<0){toast('Please select the Salesman Name and Mobile Number columns.');return;}
+  const res=computeContacts();
+  if(!res.list.length){toast('No contact rows found with the selected columns.');return;}
+  S.C.res=res;S.C.confirmed=true;S.C.map={name:+$('m_name').value,cc:+$('m_cc').value,mob:+$('m_mob').value,sheet:$('c_sheet').value};
+  S.contacts=res.list;toast('Contact mapping confirmed.');showStep(2);
+});
+
+/* ====== STEP 2 : customer file ====== */
+$('r_date').value=today();
+$('f2').addEventListener('change',async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{
+    S.U.wb=await readBook(f);S.U.file=f.name;
+    $('u_sheet').innerHTML=S.U.wb.SheetNames.map(n=>'<option>'+esc(n)+'</option>').join('');
+    loadCustSheet(true);
+    $('u_msg').innerHTML='<div class="msg ok">Loaded “'+esc(f.name)+'” – '+S.U.wb.SheetNames.length+' worksheet(s). Select the worksheet to use.</div>';
+  }catch(x){$('u_msg').innerHTML='<div class="msg err">'+esc(x.message)+'</div>';}
+});
+$('u_sheet').addEventListener('change',()=>loadCustSheet(true));
+$('u_hr').addEventListener('change',()=>loadCustSheet(false));
+function loadCustSheet(guess){
+  S.U.aoa=sheetAoa(S.U.wb,$('u_sheet').value);
+  if(guess)$('u_hr').value=guessHeaderRow(S.U.aoa);
+  const hr=Math.max(1,parseInt($('u_hr').value)||1);
+  S.U.t=buildTable(S.U.aoa,hr);const h=S.U.t.headers;$('u_info').innerHTML=sheetInfo(S.U.aoa,S.U.t,hr);
+  $('u_body').style.display='block';
+  previewTable($('u_prev'),S.U.t,8);
+  $('r_sal').innerHTML=optionsHtml(h,suggest(h,/sales|rep\b|executive/i));
+  $('r_cust').innerHTML=optionsHtml(h,suggest(h,/customer|client|party|account/i),true);
+  $('r_br').innerHTML=optionsHtml(h,suggest(h,/branch|location|region|area/i),true);
+  $('r_out').innerHTML=optionsHtml(h,suggest(h,/outstanding|balance|net|total/i),true);
+  const sugg=[/sales|rep\b|executive/i,/customer|client|party|account/i,/branch|location|region/i,/outstanding|balance|total/i,/over|due|age|days|\d+\s*[-–+]|above|>|current|not due/i,/invoice|inv\b|bill|doc/i];
+  S.cols=h.map((x,i)=>{const s=sugg.some(re=>re.test(x));const od=/overdue|over due|\d+\s*[-–]\s*\d+|above|>\s*\d+|\d+\s*\+/i.test(x);return{i,h:x,label:x,show:s,wa:s,exp:s,tot:/outstanding|balance|total/i.test(x)||od,od:od,amt:/limit|amount|total|balance|due|risk|credit|overdue|outstanding|\d+\s*[-–]\s*\d+|above/i.test(x),sugg:s};});
+  renderCols();
+}
+function renderCols(){
+  const t=S.U.t;
+  let h='<thead><tr><th>Order</th><th>Source header</th><th>Sample</th><th>Display label</th><th>Show</th><th>WhatsApp image</th><th>Excel</th><th>1,234.56 format</th><th>Σ Total</th><th>Overdue</th></tr></thead><tbody>';
+  S.cols.forEach((c,k)=>{
+    const sample=t.rows.slice(0,40).map(r=>r.r[c.i]).find(v=>clean(v)!==''||v instanceof Date);
+    h+=`<tr><td><button class="btn sm ghost" onclick="moveCol(${k},-1)">▲</button> <button class="btn sm ghost" onclick="moveCol(${k},1)">▼</button></td>
+    <td>${esc(c.h)}${c.sugg?'<span class="tag">suggested</span>':''}</td><td>${esc(cellText(sample)).slice(0,30)}</td>
+    <td><input type="text" value="${esc(c.label)}" onchange="S.cols[${k}].label=this.value||S.cols[${k}].h"></td>
+    ${['show','wa','exp','amt','tot','od'].map(f=>`<td style="text-align:center"><input type="checkbox" ${c[f]?'checked':''} onchange="S.cols[${k}].${f}=this.checked"></td>`).join('')}</tr>`;
+  });
+  $('colt').innerHTML=h+'</tbody>';
+}
+function moveCol(k,d){const j=k+d;if(j<0||j>=S.cols.length)return;[S.cols[k],S.cols[j]]=[S.cols[j],S.cols[k]];renderCols();}
+function colAll(f,v){S.cols.forEach(c=>{if(f==='show'){c.show=v;}else if(c.show)c[f]=v;});if(f==='show'&&!v){S.cols.forEach(c=>{c.wa=false;c.exp=false;});}renderCols();}
+$('u_next').addEventListener('click',()=>{
+  const e=$('u_err');e.innerHTML='';
+  if(+$('r_sal').value<0){e.innerHTML='<div class="msg err">Select the Salesman Name column.</div>';return;}
+  if(!S.cols.some(c=>c.show)){e.innerHTML='<div class="msg err">Select at least one column to display.</div>';return;}
+  S.cols.forEach(c=>{if(!c.show){c.wa=false;c.exp=false;}});
+  if(!S.cols.some(c=>c.wa)){e.innerHTML='<div class="msg err">Select at least one column for the WhatsApp message.</div>';return;}
+  S.map={sal:+$('r_sal').value,cust:+$('r_cust').value,br:+$('r_br').value,out:+$('r_out').value};
+  S.opt={fill:$('o_fill').checked,excl:$('o_tot').checked,date:$('r_date').value||today()};
+  S.seq=null;showStep(3);
+});
+
+/* ====== Processing ====== */
+const isAmt=c=>c.amt||c.tot||c.od||c.i===S.map.out;
+function fmtCell(v,c){
+  if(v===''||v==null)return'';
+  if(v instanceof Date)return fmtDate(v);
+  if(isAmt(c)){const p=parseNum(v);if(!p.bad&&!p.empty)return p.n===0?'-':fmt(p.n);}
+  return clean(v);
+}
+function fmtReportDate(){const [y,m,d]=S.opt.date.split('-');return d+'-'+MON[+m-1]+'-'+y;}
+function process(){
+  const rows=S.U.t.rows,M=S.map,O=S.opt;
+  const odCols=S.cols.filter(c=>c.od).map(c=>c.i);
+  const groups=new Map();S.missing=[];S.excluded=[];S.invalidAmt=[];let last='',included=0;
+  let srcOut=0;
+  rows.forEach(r=>{
+    if(O.excl){
+      const hit=r.r.find(v=>typeof v==='string'&&/^\s*(grand\s+|sub\s*)?total\b|\btotal\s*:?\s*$/i.test(v)&&v.trim().length<45);
+      if(hit!==undefined){S.excluded.push({no:r.no,text:String(hit).trim(),r:r.r});return;}
+    }
+    included++;
+    let sal=clean(r.r[M.sal]);
+    if(sal)last=sal;else if(O.fill&&last)sal=last;
+    let out=0,od=0;
+    if(M.out>=0){const p=parseNum(r.r[M.out]);if(p.bad)S.invalidAmt.push({no:r.no,v:cellText(r.r[M.out])});out=p.n;srcOut+=p.n;}
+    odCols.forEach(i=>{const p=parseNum(r.r[i]);if(p.bad)S.invalidAmt.push({no:r.no,v:cellText(r.r[i])});od+=p.n;});
+    const rec={no:r.no,r:r.r,out,od,sal};
+    if(!sal){S.missing.push(rec);return;}
+    const key=normName(sal);
+    if(!groups.has(key))groups.set(key,{key,name:sal,rows:[],out:0,od:0,cust:new Set(),br:new Set(),status:'pending'});
+    const g=groups.get(key);g.rows.push(rec);g.out+=out;g.od+=od;
+    const cn=M.cust>=0?normName(r.r[M.cust]):('#'+r.no);g.cust.add(cn||('#'+r.no));
+    if(M.br>=0){const b=clean(r.r[M.br]);if(b)g.br.add(b);}
+  });
+  const cmap=new Map();S.contacts.forEach(c=>{if(!cmap.has(c.key))cmap.set(c.key,[]);cmap.get(c.key).push(c);});
+  S.groups=[...groups.values()].sort((a,b)=>a.name.localeCompare(b.name));
+  S.groups.forEach((g,i)=>{
+    g.id=i;const cs=cmap.get(g.key)||[];g.contacts=cs;
+    g.contact=cs.find(c=>c.valid)||cs[0]||null;
+    g.valid=!!(g.contact&&g.contact.valid);
+    g.reason=!g.contact?'No contact record found':(g.contact.valid?'':g.contact.reason);
+  });
+  const gkeys=new Set(groups.keys());
+  S.noCust=S.contacts.filter(c=>!gkeys.has(c.key));
+  S.dupNames=[...cmap.values()].filter(a=>a.length>1);
+  const pm=new Map();S.contacts.forEach(c=>{if(c.valid){if(!pm.has(c.phone))pm.set(c.phone,new Set());pm.get(c.phone).add(c.key);}});
+  S.dupPhones=[...pm.entries()].filter(([p,s])=>s.size>1);
+  S.stats={rowsSrc:rows.length,included,srcOut};
+}
+
+/* ====== STEP 3 : preview ====== */
+function preparePreview(){
+  process();
+  const sh=S.cols.filter(c=>c.show);
+  $('p_info').innerHTML=`<div class="msg info">Contact file: <b>${esc(S.C.file)}</b> (sheet “${esc(S.C.map.sheet)}”, ${S.contacts.length} contacts) · Customer file: <b>${esc(S.U.file)}</b> (sheet “${esc($('u_sheet').value)}”, ${S.stats.rowsSrc} data rows) · Displayed columns: ${sh.length} · WhatsApp columns: ${S.cols.filter(c=>c.wa).length} · Export columns: ${S.cols.filter(c=>c.exp).length}</div>`;
+  let h='<table><thead><tr>'+sh.map(c=>'<th'+(isAmt(c)?' class="num"':'')+'>'+esc(c.label)+'</th>').join('')+'</tr></thead><tbody>';
+  S.U.t.rows.slice(0,15).forEach(r=>h+='<tr>'+sh.map(c=>'<td'+(isAmt(c)?' class="num"':'')+'>'+esc(fmtCell(r.r[c.i],c))+'</td>').join('')+'</tr>');
+  $('p_tbl').innerHTML=h+'</tbody></table>';
+  const g=S.groups[0];
+  $('p_msg').textContent=g?buildMessages(g)[0]:'No salesman groups found – check the Salesman column selection.';
+  const pc=g?renderImages(g):[];$('p_img').innerHTML=pc.length?'<img style="display:block" src="'+pc[0].toDataURL('image/png')+'" width="'+Math.round(pc[0].width/2)+'">':'<div class="msg warn">Select at least one WhatsApp column.</div>';
+  $('p_ok').checked=false;$('p_go').disabled=true;
+}
+$('p_ok').addEventListener('change',e=>$('p_go').disabled=!e.target.checked||!S.groups.length);
+$('p_go').addEventListener('click',()=>{$('v_ok').checked=false;$('v_go').disabled=true;showStep(4);});
+
+/* ====== STEP 4 : validation ====== */
+function renderValidation(){
+  const st=S.stats,G=S.groups,matched=G.filter(g=>g.contacts.length).length,unm=G.length-matched;
+  const noPhone=G.filter(g=>g.contacts.length&&!g.contact.valid);
+  const contactBad=S.contacts.filter(c=>!c.valid);
+  const assigned=G.reduce((a,g)=>a+g.rows.length,0);
+  const grpOut=G.reduce((a,g)=>a+g.out,0)+S.missing.reduce((a,r)=>a+r.out,0);
+  const hasOut=S.map.out>=0;
+  const missCust=S.map.cust>=0?G.reduce((a,g)=>a+g.rows.filter(r=>!clean(r.r[S.map.cust])).length,0)+S.missing.filter(r=>!clean(r.r[S.map.cust])).length:null;
+  $('v_kpis').innerHTML=[['Source data rows',st.rowsSrc],['Valid salesmen (in report)',G.length],['Matched with contacts',matched],['Unmatched',unm],['Valid WhatsApp contacts',G.filter(g=>g.valid).length],['Customer rows without salesman',S.missing.length]].map(k=>`<div class="kpi"><span>${k[0]}</span><b>${k[1]}</b></div>`).join('');
+  const chk=(cls,txt,val)=>`<div class="c ${cls}"><span class="ic">${cls==='ok'?'✔':cls==='warn'?'!':'✖'}</span><span>${txt}</span><span class="v">${val}</span></div>`;
+  const recOk=assigned+S.missing.length+S.excluded.length===st.rowsSrc;
+  $('v_checks').innerHTML=
+    chk(recOk?'ok':'err','Reconciliation: source rows = assigned + missing salesman + excluded total rows',`${st.rowsSrc} = ${assigned} + ${S.missing.length} + ${S.excluded.length}`)+
+    (hasOut?chk(Math.abs(grpOut-st.srcOut)<0.005?'ok':'err','Outstanding total: source vs. grouped',`${fmt(st.srcOut)} / ${fmt(grpOut)}`):'')+
+    chk(unm?'warn':'ok','Salesmen in report with no contact record (unmatched)',unm)+
+    chk(noPhone.length?'warn':'ok','Matched salesmen with missing/invalid mobile number',noPhone.length)+
+    chk(contactBad.length?'warn':'ok','Contact-file rows with missing/invalid numbers',contactBad.length)+
+    chk(S.dupNames.length?'warn':'ok','Duplicate salesman names in contact file',S.dupNames.length)+
+    chk(S.dupPhones.length?'warn':'ok','Same mobile number used by different salesmen',S.dupPhones.length)+
+    chk(S.missing.length?'warn':'ok','Customer rows with missing salesman name',S.missing.length)+
+    (missCust!==null?chk(missCust?'warn':'ok','Rows with missing customer name',missCust):'')+
+    (hasOut||S.cols.some(c=>c.od)?chk(S.invalidAmt.length?'err':'ok','Invalid (non-numeric) outstanding/overdue values',S.invalidAmt.length):'')+
+    chk(S.excluded.length?'warn':'ok','Rows excluded as Total/Grand Total lines',S.excluded.length)+
+    chk(S.noCust.length?'info':'ok','Contacts with no customers in this report (informational)',S.noCust.length).replace('✔','i');
+  const det=(title,arr,fn)=>arr.length?`<details><summary>${title} (${arr.length})</summary><div class="tbl-wrap" style="max-height:220px"><table>${fn(arr.slice(0,200))}</table></div>${arr.length>200?'<small>Showing first 200 – see Excel report for all.</small>':''}</details>`:'';
+  $('v_details').innerHTML=
+    det('Unmatched salesmen',G.filter(g=>!g.contacts.length),a=>'<tr><th>Salesman</th><th>Customers</th><th>Outstanding</th></tr>'+a.map(g=>`<tr><td>${esc(g.name)}</td><td>${g.cust.size}</td><td class="num">${hasOut?fmt(g.out):'—'}</td></tr>`).join(''))+
+    det('Missing / invalid mobile numbers (matched salesmen)',noPhone,a=>'<tr><th>Salesman</th><th>Country code</th><th>Mobile</th><th>Issue</th></tr>'+a.map(g=>`<tr><td>${esc(g.name)}</td><td>${esc(g.contact.cc)}</td><td>${esc(g.contact.mob)}</td><td>${esc(g.contact.reason)}</td></tr>`).join(''))+
+    det('Duplicate salesman names in contact file',S.dupNames,a=>'<tr><th>Name</th><th>Rows</th><th>Numbers</th></tr>'+a.map(x=>`<tr><td>${esc(x[0].name)}</td><td>${x.map(c=>c.row).join(', ')}</td><td>${x.map(c=>c.phone?'+'+c.phone:'(none)').join(', ')}</td></tr>`).join(''))+
+    det('Shared mobile numbers',S.dupPhones,a=>'<tr><th>Number</th><th>Salesmen</th></tr>'+a.map(([p,s])=>`<tr><td>+${p}</td><td>${[...s].map(k=>esc(S.contacts.find(c=>c.key===k).name)).join(', ')}</td></tr>`).join(''))+
+    det('Customer rows missing salesman',S.missing,a=>'<tr><th>Row</th>'+S.cols.filter(c=>c.show).map(c=>'<th>'+esc(c.label)+'</th>').join('')+'</tr>'+a.map(r=>`<tr><td>${r.no}</td>`+S.cols.filter(c=>c.show).map(c=>'<td>'+esc(fmtCell(r.r[c.i],c))+'</td>').join('')+'</tr>').join(''))+
+    det('Excluded Total rows',S.excluded,a=>'<tr><th>Row</th><th>Matched text</th></tr>'+a.map(x=>`<tr><td>${x.no}</td><td>${esc(x.text)}</td></tr>`).join(''))+
+    det('Invalid amount values',S.invalidAmt,a=>'<tr><th>Row</th><th>Value</th></tr>'+a.map(x=>`<tr><td>${x.no}</td><td>${esc(x.v)}</td></tr>`).join(''));
+}
+$('v_ok').addEventListener('change',e=>$('v_go').disabled=!e.target.checked);
+$('v_go').addEventListener('click',()=>showStep(5));
+
+/* ====== STEP 5 : dashboard ====== */
+function renderDashboard(){
+  const G=S.groups,hasOut=S.map.out>=0,hasOd=S.cols.some(c=>c.od);
+  const tOut=G.reduce((a,g)=>a+g.out,0),tOd=G.reduce((a,g)=>a+g.od,0),cust=G.reduce((a,g)=>a+g.cust.size,0);
+  $('d_kpis').innerHTML=[['Total Salesmen',G.length],['Total Customers',cust],hasOut?['Total Outstanding',fmt(tOut)]:null,hasOd?['Total Overdue',fmt(tOd)]:null,['Valid WhatsApp Contacts',G.filter(g=>g.valid).length],['Missing Contacts',G.filter(g=>!g.valid).length],['Completed',G.filter(g=>g.status==='completed').length+' / '+G.length]].filter(Boolean).map(k=>`<div class="kpi"><span>${k[0]}</span><b>${k[1]}</b></div>`).join('');
+  if(S.map.br>=0){const all=[...new Set(G.flatMap(g=>[...g.br]))].sort();$('d_brwrap').style.display='block';const cur=$('d_br').value;$('d_br').innerHTML='<option value="">All branches</option>'+all.map(b=>`<option${b===cur?' selected':''}>${esc(b)}</option>`).join('');}
+  renderSeq();renderTable();
+}
+function filtered(){
+  const q=$('d_q').value.toLowerCase().trim(),br=$('d_br').value,ct=$('d_ct').value,st=$('d_st').value;
+  let a=S.groups.filter(g=>(!q||g.name.toLowerCase().includes(q))&&(!br||g.br.has(br))&&(!ct||(ct==='valid'?g.valid:!g.valid))&&(!st||g.status===st));
+  const k=S.sort.k,d=S.sort.d;
+  const val={name:g=>g.name.toLowerCase(),cust:g=>g.cust.size,out:g=>g.out,od:g=>g.od,mob:g=>g.contact?g.contact.phone:'',status:g=>g.status};
+  a.sort((x,y)=>{const A=val[k](x),B=val[k](y);return (A<B?-1:A>B?1:0)*d;});
+  return a;
+}
+['d_q','d_br','d_ct','d_st'].forEach(id=>$(id).addEventListener('input',renderTable));
+function sortBy(k){S.sort.d=S.sort.k===k?-S.sort.d:1;S.sort.k=k;renderTable();}
+function renderTable(){
+  const a=filtered(),hasOut=S.map.out>=0,hasOd=S.cols.some(c=>c.od);
+  const th=(k,t,num)=>`<th class="sortable${num?' num':''}" onclick="sortBy('${k}')">${t}${S.sort.k===k?(S.sort.d>0?' ▲':' ▼'):''}</th>`;
+  let h='<thead><tr><th>#</th>'+th('name','Salesman')+(S.map.br>=0?'<th>Branch</th>':'')+th('cust','Customers',1)+(hasOut?th('out','Outstanding',1):'')+(hasOd?th('od','Overdue',1):'')+th('mob','Mobile Number')+th('status','Status')+'<th>WhatsApp Action</th></tr></thead><tbody>';
+  a.forEach((g,i)=>{
+    const mob=g.contact&&g.contact.phone?(g.valid?'+'+g.contact.phone:`<span class="pill bad" title="${esc(g.reason)}">${esc(g.reason||'invalid')}</span>`):`<span class="pill bad">${esc(g.reason)}</span>`;
+    h+=`<tr><td>${i+1}</td><td><a class="link" onclick="openDetail(${g.id})">${esc(g.name)}</a></td>${S.map.br>=0?'<td>'+esc([...g.br].join(', '))+'</td>':''}<td class="num">${g.cust.size}</td>${hasOut?'<td class="num">'+fmt(g.out)+'</td>':''}${hasOd?'<td class="num">'+fmt(g.od)+'</td>':''}<td>${mob}</td><td><span class="pill ${g.status}">${g.status}</span></td>
+    <td><button class="btn wa sm" ${g.valid?'':'disabled'} onclick="waClick(${g.id})">WhatsApp</button> <button class="btn ghost sm" onclick="previewAny(${g.id})">Preview</button> <button class="btn ghost sm" onclick="shareOne(${g.id})" title="Share the Excel file with the selected columns">📎 File</button> ${g.status!=='completed'?`<button class="btn ghost sm" onclick="setStatus(${g.id},'completed')">Mark completed</button>`:''}</td></tr>`;
+  });
+  if(!a.length)h+='<tr><td colspan="9" style="text-align:center;color:var(--mut);padding:20px">No salesmen match the filters.</td></tr>';
+  $('d_tbl').innerHTML=h+'</tbody>';
+}
+
+/* ====== Message & WhatsApp ====== */
+function buildMessages(g){
+  const cols=S.cols.filter(c=>c.wa);
+  const head=`Dear ${g.name},\n\nPlease find below your customer-wise overdue ageing report as of ${fmtReportDate()}.\n\n`;
+  const blocks=g.rows.map((r,k)=>{
+    const lines=cols.map(c=>{const s=fmtCell(r.r[c.i],c);return s===''||s==='-'?null:c.label+': '+s;}).filter(Boolean);
+    return '*'+(k+1)+'.* '+lines.join('\n    ');
+  });
+  let sum='\n*SALESMAN SUMMARY:*\n\nTotal Customers: '+g.cust.size;
+  if(S.map.out>=0)sum+='\n\nTotal Outstanding: '+fmt(g.out);
+  if(S.cols.some(c=>c.od))sum+='\n\nTotal Overdue: '+fmt(g.od);
+  sum+='\n\nKindly review the outstanding balances and coordinate with your customers for collection follow-up.\n\nPlease share the expected collection dates and payment updates.\n\nThank you.\n\nDSTC – Accounts Receivable Department.';
+  const LIMIT=3400,parts=[];let cur=[];
+  const len=a=>encodeURIComponent(a.join('\n\n')).length;
+  blocks.forEach(b=>{if(cur.length&&len(cur.concat([b]))+encodeURIComponent(head+sum).length>LIMIT){parts.push(cur);cur=[];}cur.push(b);});
+  parts.push(cur);
+  const n=parts.length;
+  return parts.map((p,i)=>{
+    const tag=n>1?`(Part ${i+1} of ${n})\n`:'';
+    return (i===0?head:`Dear ${g.name},\n\n(Part ${i+1} of ${n}) Overdue ageing as of ${fmtReportDate()} – continued.\n\n`)+(i===0&&n>1?tag:'')+p.join('\n\n')+'\n'+(i===n-1?sum:'');
+  });
+}
+function waUrl(g,txt){return 'https://wa.me/'+g.contact.phone+'?text='+encodeURIComponent(txt);}
+function openWA(g,part){
+  if(!g.valid){toast('No valid WhatsApp number for '+g.name);return false;}
+  const msgs=buildMessages(g),url=waUrl(g,msgs[part||0]);
+  const w=window.open(url,'_blank');
+  if(!w){showBlocked(url,g);return false;}
+  try{w.opener=null;}catch(e){}
+  if(g.status==='pending')g.status='opened';
+  return msgs.length;
+}
+function waClick(id){
+  const mode=$('d_mode')?$('d_mode').value:'text';
+  if(mode!=='text')return waImage(id,mode);
+  const g=S.groups[id],n=openWA(g,0);
+  if(n>1)previewMsg(id,true);
+  refresh();
+}
+function previewAny(id){if($('d_mode')&&$('d_mode').value!=='text')showImages(id);else previewMsg(id);}
+function showBlocked(url,g){
+  $('msgov_in').innerHTML=`<h2>Pop-up blocked</h2><div class="msg warn">Your browser blocked the new tab. Click the link below to open WhatsApp for ${esc(g.name)} (or allow pop-ups for this page).</div><p><a class="btn wa" style="text-decoration:none;display:inline-block" href="${esc(url)}" target="_blank" rel="noopener" onclick="S.groups[${g.id}].status==='pending'&&(S.groups[${g.id}].status='opened');refresh()">Open WhatsApp chat</a></p><button class="btn ghost" onclick="closeMsg()">Close</button>`;
+  $('msgov').classList.add('on');
+}
+function previewMsg(id,long){
+  const g=S.groups[id],msgs=buildMessages(g);
+  let h=`<h2>WhatsApp message – ${esc(g.name)}</h2>`;
+  if(g.valid)h+=`<p class="hint">To: +${g.contact.phone}${msgs.length>1?' · Long message split into '+msgs.length+' parts (part 1 was opened). Open the remaining parts one by one.':''}</p>`;
+  else h+=`<div class="msg err">${esc(g.reason)} – WhatsApp cannot be opened for this salesman.</div>`;
+  msgs.forEach((m,i)=>{
+    h+=`${msgs.length>1?'<b>Part '+(i+1)+'</b>':''}<pre class="wa">${esc(m)}</pre><div class="row" style="margin-bottom:12px">${g.valid?`<button class="btn wa sm" onclick="openPart(${id},${i})">Open WhatsApp${msgs.length>1?' (part '+(i+1)+')':''}</button>`:''}<button class="btn ghost sm" onclick="copyMsg(${id},${i})">Copy text</button></div>`;
+  });
+  $('msgov_in').innerHTML=h+'<button class="btn ghost" onclick="closeMsg()">Close</button>';
+  $('msgov').classList.add('on');
+}
+function openPart(id,i){openWA(S.groups[id],i);refresh();}
+function copyMsg(id,i){const t=buildMessages(S.groups[id])[i];(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Message copied'),()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('Message copied');});}
+function closeMsg(){$('msgov').classList.remove('on');}
+function setStatus(id,s){S.groups[id].status=s;refresh();}
+function refresh(){renderDashboard();if(S.detail)renderDetail();}
+
+/* ====== Sequential workflow ====== */
+$('d_start').addEventListener('click',()=>{
+  const q=filtered();if(!q.length){toast('No salesmen in the current filter.');return;}
+  S.seq={ids:q.map(g=>g.id),i:0};renderSeq();
+});
+function renderSeq(){
+  const e=$('seq');if(!S.seq){e.classList.remove('on');return;}
+  const q=S.seq,g=S.groups[q.ids[q.i]],done=q.ids.filter(id=>S.groups[id].status==='completed').length,opened=q.ids.filter(id=>S.groups[id].status!=='pending').length;
+  e.classList.add('on');
+  e.innerHTML=`<div class="row"><div><b>Salesman ${q.i+1} of ${q.ids.length}: ${esc(g.name)}</b><br><small>${g.cust.size} customers${S.map.out>=0?' · Outstanding '+fmt(g.out):''} · ${g.valid?'+'+g.contact.phone:esc(g.reason)} · <span class="pill ${g.status}">${g.status}</span></small></div>
+  <div style="margin-left:auto" class="row"><button class="btn sm gold" onclick="seqGo(-1)">◀ Previous</button><button class="btn sm wa" ${g.valid?'':'disabled'} onclick="seqOpen()">Open WhatsApp</button><button class="btn sm gold" onclick="seqDone()">Mark completed</button><button class="btn sm gold" onclick="seqGo(1)">Next ▶</button><button class="btn sm ghost" style="color:#fff;border-color:#fff;background:transparent" onclick="S.seq=null;renderSeq()">Stop</button></div></div>
+  <div class="bar"><i style="width:${Math.round(done/q.ids.length*100)}%"></i></div><small>Completed ${done} · Opened ${opened} · Pending ${q.ids.length-opened} (of ${q.ids.length}). Review each message in WhatsApp and press Send yourself.</small>`;
+}
+function seqGo(d){const q=S.seq;q.i=Math.min(q.ids.length-1,Math.max(0,q.i+d));renderSeq();}
+function seqOpen(){waClick(S.seq.ids[S.seq.i]);}
+function seqDone(){const g=S.groups[S.seq.ids[S.seq.i]];g.status='completed';if(S.seq.i<S.seq.ids.length-1)S.seq.i++;refresh();}
+
+/* ====== Detail view ====== */
+function openDetail(id){S.detail={id,q:'',sc:-1,d:1,br:''};renderDetail();$('detail').classList.add('on');}
+function closeDetail(){S.detail=null;$('detail').classList.remove('on');}
+function detRows(){
+  const D=S.detail,g=S.groups[D.id],sh=S.cols.filter(c=>c.show);
+  let rows=g.rows.filter(r=>(!D.br||clean(r.r[S.map.br])===D.br)&&(!D.q||sh.some(c=>fmtCell(r.r[c.i],c).toLowerCase().includes(D.q.toLowerCase()))));
+  if(D.sc>=0){const c=sh[D.sc];rows=rows.slice().sort((a,b)=>{let A=a.r[c.i],B=b.r[c.i];if(isAmt(c)){A=parseNum(A).n;B=parseNum(B).n;}else{A=A instanceof Date?A.getTime():String(A).toLowerCase();B=B instanceof Date?B.getTime():String(B).toLowerCase();}return (A<B?-1:A>B?1:0)*D.d;});}
+  return rows;
+}
+function renderDetail(){
+  const D=S.detail,g=S.groups[D.id],sh=S.cols.filter(c=>c.show),rows=detRows();
+  const brs=S.map.br>=0?[...g.br].sort():[];
+  const totals=sh.map(c=>c.tot||c.od||c.i===S.map.out?rows.reduce((a,r)=>a+parseNum(r.r[c.i]).n,0):null);
+  const cu=new Set(rows.map(r=>S.map.cust>=0?normName(r.r[S.map.cust]):'#'+r.no)).size;
+  let h=`<div class="row" style="margin-bottom:10px"><div><h2 style="font-size:18px;margin:0">${esc(g.name)}</h2><small>${g.valid?'+'+g.contact.phone:esc(g.reason)}${brs.length?' · Branch: '+esc(brs.join(', ')):''}</small></div>
+  <div style="margin-left:auto" class="row"><button class="btn wa sm" ${g.valid?'':'disabled'} onclick="waClick(${g.id})">WhatsApp</button><button class="btn ghost sm" onclick="previewAny(${g.id})">Preview</button><button class="btn ghost sm" onclick="shareOne(${g.id})">📎 Share / attach file</button><button class="btn ghost sm" onclick="exportOne(${g.id})">⬇ Excel</button><button class="btn sm" onclick="closeDetail()">Close ✕</button></div></div>
+  <div class="kpis"><div class="kpi"><span>Customers</span><b>${cu}</b></div><div class="kpi"><span>Records</span><b>${rows.length}</b></div>${S.map.out>=0?'<div class="kpi"><span>Outstanding</span><b>'+fmt(rows.reduce((a,r)=>a+parseNum(r.r[S.map.out]).n,0))+'</b></div>':''}${S.cols.some(c=>c.od)?'<div class="kpi"><span>Overdue</span><b>'+fmt(rows.reduce((a,r)=>a+S.cols.filter(c=>c.od).reduce((x,c)=>x+parseNum(r.r[c.i]).n,0),0))+'</b></div>':''}<div class="kpi"><span>Status</span><b style="font-size:15px"><span class="pill ${g.status}">${g.status}</span></b></div></div>
+  <div class="row" style="margin-bottom:10px"><div><label>Search customers / records</label><input type="text" id="dt_q" value="${esc(D.q)}" placeholder="Search…"></div>${brs.length>1?'<div><label>Branch</label><select id="dt_br"><option value="">All</option>'+brs.map(b=>`<option${b===D.br?' selected':''}>${esc(b)}</option>`).join('')+'</select></div>':''}</div>
+  <div class="tbl-wrap" style="max-height:60vh"><table><thead><tr><th>#</th>${sh.map((c,k)=>`<th class="sortable${isAmt(c)?' num':''}" onclick="detSort(${k})">${esc(c.label)}${D.sc===k?(D.d>0?' ▲':' ▼'):''}</th>`).join('')}</tr></thead><tbody>`;
+  rows.forEach((r,i)=>h+=`<tr><td>${i+1}</td>${sh.map(c=>`<td${isAmt(c)?' class="num"':''}>${esc(fmtCell(r.r[c.i],c))}</td>`).join('')}</tr>`);
+  h+=`</tbody><tfoot><tr><td></td>${sh.map((c,k)=>`<td${totals[k]!==null?' class="num"':''}>${k===0&&totals[k]===null?'Grand Total':(totals[k]!==null?fmt(totals[k]):'')}</td>`).join('')}</tr></tfoot></table></div>`;
+  const had=document.activeElement&&document.activeElement.id;
+  $('detail_in').innerHTML=h;
+  const q=$('dt_q');q.addEventListener('input',e=>{D.q=e.target.value;const p=e.target.selectionStart;renderDetail();const n=$('dt_q');n.focus();n.setSelectionRange(p,p);});
+  const b=$('dt_br');if(b)b.addEventListener('change',e=>{D.br=e.target.value;renderDetail();});
+}
+function detSort(k){const D=S.detail;D.d=D.sc===k?-D.d:1;D.sc=k;renderDetail();}
+
+/* ====== Excel exports (ExcelJS) ====== */
+const NAVY='FF0B2447';
+function needExcelJS(){if(typeof ExcelJS==='undefined'){toast('ExcelJS library not loaded – internet is needed to load it.');return false;}return true;}
+function safeSheet(wb,n){n=String(n).replace(/[\\\/\?\*\[\]:]/g,' ').trim().slice(0,31)||'Sheet';let b=n,i=1;while(wb.getWorksheet(n))n=b.slice(0,28)+'_'+(++i);return n;}
+function styleHeader(row){row.eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:NAVY}};c.alignment={vertical:'middle',horizontal:'center',wrapText:true};c.border={bottom:{style:'medium',color:{argb:'FFC9A227'}}};});row.height=26;}
+/* spec: {name, headers[], rows[][], fmts[] (numFmt|null), totals[] (bool)} */
+function addSheet(wb,spec){
+  const ws=wb.addWorksheet(safeSheet(wb,spec.name));
+  const hr=ws.addRow(spec.headers);styleHeader(hr);
+  spec.rows.forEach(r=>ws.addRow(r));
+  const n=spec.headers.length,last=spec.rows.length+1;
+  spec.fmts.forEach((f,j)=>{if(f)for(let i=2;i<=last;i++)ws.getCell(i,j+1).numFmt=f;});
+  if(spec.totals&&spec.totals.some(Boolean)&&spec.rows.length){
+    const tr=ws.addRow(spec.headers.map((_,j)=>j===0?'Grand Total':null));
+    spec.totals.forEach((t,j)=>{if(t){const col=ws.getColumn(j+1).letter;let s=0;spec.rows.forEach(r=>{s+=typeof r[j]==='number'?r[j]:0;});tr.getCell(j+1).value={formula:`SUBTOTAL(109,${col}2:${col}${last})`,result:s};tr.getCell(j+1).numFmt=spec.fmts[j]||'#,##0.00';}});
+    tr.eachCell({includeEmpty:true},c=>{c.font={bold:true};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFF2CC'}};c.border={top:{style:'thin'},bottom:{style:'double'}};});
+  }
+  ws.views=[{state:'frozen',ySplit:1}];
+  ws.autoFilter={from:{row:1,column:1},to:{row:1,column:n}};
+  spec.headers.forEach((h,j)=>{let w=String(h).length+4;spec.rows.slice(0,500).forEach(r=>{const v=r[j];const l=v instanceof Date?11:String(v==null?'':v).length;if(l+2>w)w=l+2;});ws.getColumn(j+1).width=Math.min(Math.max(w,10),50);});
+  return ws;
+}
+function expVal(v,c){
+  if(v===''||v==null)return null;
+  if(v instanceof Date)return new Date(v.getTime()+600000);
+  if(isAmt(c)){const p=parseNum(v);if(!p.bad&&!p.empty)return p.n;}
+  return typeof v==='number'?v:clean(v);
+}
+function expCols(){return S.cols.filter(c=>c.show&&c.exp);}
+function dataSpec(name,groups,withSal){
+  const ec=expCols(),headers=(withSal?['Salesman']:[]).concat(ec.map(c=>c.label));
+  const rows=[];
+  groups.forEach(g=>g.rows.forEach(r=>rows.push((withSal?[g.name]:[]).concat(ec.map(c=>expVal(r.r[c.i],c))))));
+  const off=withSal?1:0;
+  const fmts=(withSal?[null]:[]).concat(ec.map(c=>isAmt(c)?'#,##0.00':(S.U.t.rows.slice(0,50).some(r=>r.r[c.i] instanceof Date)?'dd-mmm-yyyy':null)));
+  const totals=(withSal?[false]:[]).concat(ec.map(c=>isAmt(c)));
+  return{name,headers,rows,fmts,totals};
+}
+async function exportAll(){
+  if(!needExcelJS())return;
+  const wb=new ExcelJS.Workbook();wb.creator='DSTC';
+  addSheet(wb,dataSpec('Customer Report',S.groups,true));
+  const hasOut=S.map.out>=0,hasOd=S.cols.some(c=>c.od);
+  const headers=['Salesman','Mobile Number','Customers','Records'].concat(hasOut?['Outstanding']:[]).concat(hasOd?['Overdue']:[]).concat(['Status']);
+  const rows=S.groups.map(g=>['Salesman','Mobile Number','Customers','Records'].map((h,j)=>[g.name,g.valid?'+'+g.contact.phone:(g.reason||''),g.cust.size,g.rows.length][j]).concat(hasOut?[g.out]:[]).concat(hasOd?[g.od]:[]).concat([g.status]));
+  const fm=[null,null,'0','0'].concat(hasOut?['#,##0.00']:[]).concat(hasOd?['#,##0.00']:[]).concat([null]);
+  const tt=[false,false,true,true].concat(hasOut?[true]:[]).concat(hasOd?[true]:[]).concat([false]);
+  addSheet(wb,{name:'Salesman Summary',headers,rows,fmts:fm,totals:tt});
+  saveBlob(await wb.xlsx.writeBuffer(),'DSTC_Salesman_Customer_Report_'+today()+'.xlsx');toast('Report downloaded');
+}
+const oneName=g=>'DSTC_'+g.name.replace(/[^\w\-]+/g,'_')+'_'+today()+'.xlsx';
+async function oneBuf(g){const wb=new ExcelJS.Workbook();wb.creator='DSTC';addSheet(wb,dataSpec(g.name,[g],false));return await wb.xlsx.writeBuffer();}
+async function exportOne(id){
+  if(!needExcelJS())return;const g=S.groups[id];
+  saveBlob(await oneBuf(g),oneName(g));toast('Salesman report downloaded');
+}
+async function shareOne(id){
+  if(!needExcelJS())return;const g=S.groups[id];
+  const buf=await oneBuf(g);
+  const file=new File([buf],oneName(g),{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    try{await navigator.share({files:[file],text:'Overdue ageing report – '+g.name});if(g.status==='pending')g.status='opened';refresh();return;}
+    catch(e){if(e&&e.name==='AbortError')return;}
+  }
+  saveBlob(buf,oneName(g));
+  toast('This browser cannot attach files to WhatsApp directly. The Excel file was downloaded – open the salesman\'s WhatsApp chat and attach it (paperclip or drag & drop).',9000);
+}
+async function exportValidation(){
+  if(!needExcelJS())return;
+  const wb=new ExcelJS.Workbook();wb.creator='DSTC';
+  const gk=new Map(S.groups.map(g=>[g.key,g]));
+  const rows=S.contacts.map(c=>{const g=gk.get(c.key);return[c.row,c.name,c.cc,c.mob,c.phone?'+'+c.phone:'',c.valid?'Valid':c.reason,g?'Yes':'No',g?g.cust.size:0];});
+  addSheet(wb,{name:'Contact Validation',headers:['Source Row','Salesman','Country Code (source)','Mobile (source)','WhatsApp Number','Result','In Customer Report','Customers'],rows,fmts:[null,null,null,null,null,null,null,'0'],totals:[]});
+  saveBlob(await wb.xlsx.writeBuffer(),'DSTC_Contact_Validation_'+today()+'.xlsx');
+}
+async function exportUnmatched(){
+  if(!needExcelJS())return;
+  const wb=new ExcelJS.Workbook();wb.creator='DSTC';
+  const hasOut=S.map.out>=0;
+  addSheet(wb,{name:'Unmatched Salesmen',headers:['Salesman','Issue','Customers','Records'].concat(hasOut?['Outstanding']:[]),rows:S.groups.filter(g=>!g.valid).map(g=>[g.name,g.reason,g.cust.size,g.rows.length].concat(hasOut?[g.out]:[])),fmts:[null,null,'0','0'].concat(hasOut?['#,##0.00']:[]),totals:[false,false,true,true].concat(hasOut?[true]:[])});
+  const sh=S.cols.filter(c=>c.show);
+  addSheet(wb,{name:'Missing Salesman',headers:['Source Row'].concat(sh.map(c=>c.label)),rows:S.missing.map(r=>[r.no].concat(sh.map(c=>expVal(r.r[c.i],c)))),fmts:[null].concat(sh.map(c=>isAmt(c)?'#,##0.00':null)),totals:[false].concat(sh.map(c=>isAmt(c)))});
+  addSheet(wb,{name:'Contacts Without Customers',headers:['Source Row','Salesman','WhatsApp Number'],rows:S.noCust.map(c=>[c.row,c.name,c.phone?'+'+c.phone:'']),fmts:[null,null,null],totals:[]});
+  addSheet(wb,{name:'Excluded Total Rows',headers:['Source Row','Matched Text'],rows:S.excluded.map(x=>[x.no,x.text]),fmts:[null,null],totals:[]});
+  saveBlob(await wb.xlsx.writeBuffer(),'DSTC_Unmatched_Report_'+today()+'.xlsx');
+}
+
+/* ====== Table image for WhatsApp (copy to clipboard, paste in chat) ====== */
+const IMGF='"Segoe UI",Tahoma,Arial,sans-serif';
+function fitText(ctx,t,maxW){if(ctx.measureText(t).width<=maxW)return t;while(t.length>1&&ctx.measureText(t+'…').width>maxW)t=t.slice(0,-1);return t+'…';}
+function wrapWords(ctx,t,maxW){const w=String(t).split(' '),L=[];let cur='';w.forEach(x=>{const tt=cur?cur+' '+x:x;if(cur&&ctx.measureText(tt).width>maxW){L.push(cur);cur=x;}else cur=tt;});if(cur)L.push(cur);return L.length?L:[''];}
+function renderImages(g){
+  const cols=S.cols.filter(c=>c.show&&c.wa);if(!cols.length)return[];
+  const PER=28,K=2,PAD=14,RH=30,rows=g.rows,m=document.createElement('canvas').getContext('2d');
+  const totals=cols.map(c=>(c.tot||c.od||c.i===S.map.out)?rows.reduce((a,r)=>a+parseNum(r.r[c.i]).n,0):null);
+  const widths=cols.map((c,k)=>{
+    m.font='13px '+IMGF;let w=0;rows.forEach(r=>{w=Math.max(w,m.measureText(fmtCell(r.r[c.i],c)).width);});
+    if(totals[k]!==null){m.font='bold 13px '+IMGF;w=Math.max(w,m.measureText(fmt(totals[k])).width);}
+    m.font='bold 12px '+IMGF;const lw=Math.max(...String(c.label).split(' ').map(x=>m.measureText(x).width),0);
+    return Math.round(Math.min(k===0?380:200,Math.max(w+26,lw+20,72)));
+  });
+  m.font='bold 12px '+IMGF;
+  const hdr=cols.map((c,k)=>wrapWords(m,c.label,widths[k]-12));
+  const HH=Math.max(...hdr.map(l=>l.length))*16+16;
+  const chunks=[];for(let i=0;i<rows.length;i+=PER)chunks.push(rows.slice(i,i+PER));if(!chunks.length)chunks.push([]);
+  const W=Math.max(520,widths.reduce((a,b)=>a+b,0)+PAD*2);
+  return chunks.map((ch,pi)=>{
+    const last=pi===chunks.length-1,H=PAD+44+HH+ch.length*RH+(last?RH+6:0)+PAD;
+    const cv=document.createElement('canvas');cv.width=W*K;cv.height=H*K;
+    const x=cv.getContext('2d');x.scale(K,K);x.fillStyle='#fff';x.fillRect(0,0,W,H);x.textBaseline='middle';
+    x.fillStyle='#0b2447';x.font='bold 16px '+IMGF;x.textAlign='left';
+    x.fillText('DSTC – Customer Overdue Ageing – '+g.name,PAD,PAD+12);
+    x.fillStyle='#555';x.font='12px '+IMGF;
+    x.fillText('As of '+fmtReportDate()+' · '+g.cust.size+' customers'+(chunks.length>1?' · Part '+(pi+1)+' of '+chunks.length:''),PAD,PAD+32);
+    let y=PAD+44,xx=PAD;
+    cols.forEach((c,k)=>{x.fillStyle='#000';x.fillRect(xx,y,widths[k],HH);x.strokeStyle='#fff';x.lineWidth=1;x.strokeRect(xx+.5,y+.5,widths[k]-1,HH-1);
+      x.fillStyle='#fff';x.font='bold 12px '+IMGF;x.textAlign='center';const L=hdr[k];
+      L.forEach((t,i)=>x.fillText(t,xx+widths[k]/2,y+HH/2+(i-(L.length-1)/2)*16));xx+=widths[k];});
+    y+=HH;
+    ch.forEach(r=>{xx=PAD;cols.forEach((c,k)=>{
+      const od=!!c.od,amt=isAmt(c),t=fmtCell(r.r[c.i],c);
+      x.fillStyle=od?'#fde4de':'#fff';x.fillRect(xx,y,widths[k],RH);
+      x.strokeStyle='#9aa0a8';x.lineWidth=1;x.strokeRect(xx+.5,y+.5,widths[k]-1,RH-1);
+      x.font=(od?'bold ':'')+'13px '+IMGF;x.fillStyle=(od&&t!=='-'&&t!=='')?'#c00000':'#111';
+      x.textAlign=k===0?'left':(amt?'right':'center');
+      x.fillText(fitText(x,t,widths[k]-16),k===0?xx+8:(amt?xx+widths[k]-10:xx+widths[k]/2),y+RH/2+1);
+      xx+=widths[k];});y+=RH;});
+    if(last){y+=2;xx=PAD;
+      cols.forEach((c,k)=>{x.fillStyle='#f1f1f1';x.fillRect(xx,y,widths[k],RH+2);
+        x.fillStyle='#000';x.font='bold 13px '+IMGF;
+        if(k===0){x.textAlign='center';x.fillText('Grand Total',xx+widths[k]/2,y+RH/2+1);}
+        else if(totals[k]!==null){x.textAlign='right';x.fillStyle=c.od?'#c00000':'#000';x.fillText(fmt(totals[k]),xx+widths[k]-10,y+RH/2+1);}
+        xx+=widths[k];});
+      x.fillStyle='#000';x.fillRect(PAD,y,W-PAD*2,2);x.fillRect(PAD,y+RH,W-PAD*2,2);}
+    return cv;
+  });
+}
+const blobOf=cv=>new Promise(r=>cv.toBlob(r,'image/png'));
+async function copyImg(cv){
+  if(!(navigator.clipboard&&navigator.clipboard.write&&window.ClipboardItem))return false;
+  try{window.focus();const b=await blobOf(cv);await navigator.clipboard.write([new ClipboardItem({'image/png':b})]);return true;}
+  catch(e){try{await navigator.clipboard.write([new ClipboardItem({'image/png':blobOf(cv)})]);return true;}catch(e2){console.warn(e2);return false;}}
+}
+function canShareFiles(){try{return !!(navigator.canShare&&navigator.canShare({files:[new File([new Blob(['x'])],'a.png',{type:'image/png'})]}));}catch(e){return false;}}
+function imgName(g,i){return 'DSTC_'+g.name.replace(/[^\w\-]+/g,'_')+'_'+(i+1)+'.png';}
+function dlImg(cv,g,i){cv.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=imgName(g,i);document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);},'image/png');}
+const greeting=g=>'Dear '+g.name+',\nOverdue ageing report as of '+fmtReportDate()+'.';
+async function waImage(id,mode){
+  const g=S.groups[id];
+  if(!g.valid){toast('No valid WhatsApp number for '+g.name);return;}
+  const cvs=renderImages(g);if(!cvs.length){toast('Select at least one WhatsApp column in step 2.');return;}
+  S.imgs=S.imgs||{};S.imgs[id]=cvs;
+  const copied=await copyImg(cvs[0]);
+  if(!copied)dlImg(cvs[0],g,0);
+  const url='https://wa.me/'+g.contact.phone+(mode==='both'?'?text='+encodeURIComponent(greeting(g)):'');
+  const w=window.open(url,'_blank');
+  if(g.status==='pending')g.status='opened';
+  refresh();
+  if(!w)showBlocked(url,g);else{try{w.opener=null;}catch(e){}showImages(id,copied);}
+}
+function openChat(id){const g=S.groups[id];if(!g.valid)return;window.open('https://wa.me/'+g.contact.phone,'_blank');if(g.status==='pending'){g.status='opened';refresh();}}
+function showImages(id,copied){
+  const g=S.groups[id],cvs=renderImages(g);S.imgs=S.imgs||{};S.imgs[id]=cvs;
+  let h='<h2>Table image – '+esc(g.name)+'</h2>';
+  if(!cvs.length)h+='<div class="msg err">Select at least one WhatsApp column in step 2.</div>';
+  else{
+    h+=copied===true?'<div class="msg ok">✔ Image 1 is copied. Go to the WhatsApp tab: click the message box, press <b>Ctrl+V</b>, check the picture, then press <b>Send</b>.</div>'
+      :copied===false?'<div class="msg warn">The browser could not copy the image automatically, so it was downloaded as a PNG. In the chat use the 📎 button (or drag &amp; drop) to attach it.</div>'
+      :'<div class="msg info">Press “Copy image”, open the chat, press Ctrl+V to paste, then Send.</div>';
+    h+=canShareFiles()?'<div class="msg info"><b>Best way to attach automatically:</b> press <b>Share image</b> below, choose <b>WhatsApp</b> and then the salesman – the picture is attached for you.</div><p><button class="btn wa" onclick="sharePart('+id+',0)">📤 Share image to WhatsApp</button></p>':'<div class="msg warn">This browser cannot hand pictures to WhatsApp directly. Use Copy image, then press Ctrl+V inside the chat (or Download PNG and attach it with the 📎 button).</div>';
+    if(cvs.length>1)h+='<div class="msg info">The table is long, so it is split into '+cvs.length+' images. Copy and paste them one after another (use “Copy image” for each part).</div>';
+    cvs.forEach((cv,i)=>{h+='<div style="margin:10px 0"><b>'+(cvs.length>1?'Part '+(i+1)+' of '+cvs.length:'Image')+'</b><div class="tbl-wrap" style="max-height:340px;margin:6px 0;padding:6px"><img src="'+cv.toDataURL('image/png')+'" style="display:block;width:'+Math.round(cv.width/2)+'px"></div><div class="row"><button class="btn sm" onclick="copyPart('+id+','+i+')">Copy image</button><button class="btn ghost sm" onclick="dlPart('+id+','+i+')">Download PNG</button><button class="btn ghost sm" onclick="sharePart('+id+','+i+')">Share…</button></div></div>';});
+  }
+  h+='<div class="row" style="margin-top:8px">'+(g.valid?'<button class="btn wa sm" onclick="openChat('+id+')">Open WhatsApp chat</button>':'')+'<button class="btn ghost" onclick="closeMsg()">Close</button></div>';
+  $('msgov_in').innerHTML=h;$('msgov').classList.add('on');
+}
+async function copyPart(id,i){const ok=await copyImg(S.imgs[id][i]);toast(ok?'Image copied – paste it in the WhatsApp chat with Ctrl+V':'Could not copy automatically – use Download PNG',6000);}
+function dlPart(id,i){dlImg(S.imgs[id][i],S.groups[id],i);}
+async function sharePart(id,i){
+  const g=S.groups[id],b=await blobOf(S.imgs[id][i]),f=new File([b],imgName(g,i),{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]});return;}catch(e){if(e&&e.name==='AbortError')return;}}
+  dlImg(S.imgs[id][i],g,i);toast('Sharing is not supported here – the PNG was downloaded.',6000);
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMsg();if(S.detail)closeDetail();}});
+</script>
+</body>
+</html>
